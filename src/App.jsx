@@ -1,33 +1,51 @@
-import { useState } from 'react'
+import {useEffect, useState } from 'react'
 import reactLogo from './assets/react.svg'
 import viteLogo from '/vite.svg'
 import './App.css'
+import SearchInput from './SearchInput'
+import DataTable from './DataTable'
 
 function App() {
-  const [count, setCount] = useState(0)
+
+  const [users, setUsers] = useState([])
+  const [search, setSearch] = useState("")
+  const [filteredUsers, setFilteredUsers] = useState([])
+
+  useEffect(  () => {
+    
+    const fetchData = async () => {
+      const response = await  fetch('https://jsonplaceholder.typicode.com/users')
+      const result = await response.json();
+
+      console.log(result);
+      setUsers(result);
+      setFilteredUsers(result)
+      
+    } 
+
+    fetchData();
+
+  }, [])
+  
+  function handleOnInputChange(e){
+    console.log("handle");
+    const searchTerm = e.target.value
+    setSearch(searchTerm)
+
+    const filtered = users.filter(user => 
+      user.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+
+    setFilteredUsers(filtered)
+
+  }
+
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+     <h1>User Rolodex</h1>
+      <SearchInput onInputChange={handleOnInputChange} />
+      <DataTable users={filteredUsers}/>
     </>
   )
 }
